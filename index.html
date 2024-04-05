@@ -3,44 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>唱片</title>
+    <title>唱片机</title>
 
     <style>
         .container {
             margin: 0 auto;
             width: fit-content;
-            padding: 10px;
+            padding: 50px;
         }
     </style>
 
     <style>
-        div.record-player {
-            --record-diameter: 380px;
-            --tonearm-width: 7px;
+        /* 唱片机底座 */
+        .record-player {
+            --record-radius: 190px;
+            --record-diameter: calc(2 * var(--record-radius));
+            --tonearm-width: 12px;
+            --padding-width: 25px;
+            --tonearm-rotation: 0deg;
+            --tonearm-rotation-min: 12deg;
+            --tonearm-rotation-max: 22deg;
 
+            padding: var(--padding-width);
             position: relative;
+            width: calc(var(--record-diameter) + 2 * var(--tonearm-width));
+
+            border-radius: calc(var(--padding-width));
+            box-shadow: inset 0 0 var(--padding-width) 0 #c1c1c1;
+            background:
+                linear-gradient(
+                    to right bottom,
+                    #ebebeb33 0%,
+                    #ffffff99 40%,
+                    #e8e8e833 100%
+                ),
+                radial-gradient(
+                    circle at calc(var(--padding-width) + var(--record-radius)),
+                    #dbdbdb calc(var(--record-radius) - var(--tonearm-width)),
+                    #565656 calc(var(--record-radius)),
+                    #dbdbdb calc(var(--record-radius) + var(--tonearm-width)),
+                    #ffffff 100%
+                );
         }
 
-        /* 唱片旋转动画 */
-        @keyframes record-rotation-animation {
-            from { transform: rotate(0deg);   }
-            to   { transform: rotate(360deg); }
-        }
-        /* 唱片 */
-        div.record-player .record {
+        /* 唱片 [begin] */
+        .record-player .record {
             width: var(--record-diameter);
             height: var(--record-diameter);
             border-radius: 50%;
             border:1px solid #000000;
             background:
                 conic-gradient(
-                    #f1f1f122 0%,
-                    #5d5d5d22 15%,
-                    #fbfbfb22 30%,
-                    #4d4d4d22 45%,
-                    #fafafa22 60%,
-                    #64646422 77.5%,
-                    #f1f1f122 100%
+                    #e1e1e12f 0%,
+                    #0000002f 15%,
+                    #e8e8e82f 30%,
+                    #0000002f 45%,
+                    #e7e7e72f 60%,
+                    #0000002f 77.5%,
+                    #e1e1e12f 100%
                 ),
                 radial-gradient(
                     #55555522 49%,
@@ -53,34 +73,35 @@
                     #202020 7px,
                     #000000 8px
                 );
-
-            /* 动画 */
-            animation-name: record-rotation-animation;
-            animation-duration: 30s;
-            animation-iteration-count: infinite;
-            animation-timing-function: linear;
         }
-        /* 唱片封面 */
-        div.record-player .record img {
+        .record-player .record:hover {
+            cursor: pointer;
+        }
+        /* 唱片 [end] */
+
+        /* 唱片封面 [begin] */
+        .record-player .record img {
             width: var(--record-diameter);
             height: var(--record-diameter);
             box-sizing: border-box;
             scale: 0.55;
 
             object-fit: cover;
+            user-select: none;
 
             border-radius: 50%;
             border:6px solid #ff6600;
             background-color: #ffffff;
         }
+        /* 唱片封面 [end] */
 
-        /* 唱臂 */
+        /* 唱臂 [begin] */
         .tonearm {
             --tonearm-add-width: calc(0.1 * var(--tonearm-width));
 
             position: absolute;
-            left: var(--record-diameter);
-            top: 0;
+            left: calc(var(--record-diameter) + var(--tonearm-width) + var(--padding-width));
+            top: var(--padding-width);
             width: var(--tonearm-width);
             height: calc(0.75 * var(--record-diameter));
             background:
@@ -100,8 +121,39 @@
                     #141414 90%,
                     #000000 100%
                 );
-            transform: rotate(13deg);
-            transform-origin: center var(--tonearm-width);
+            transform-origin: center calc(0.5 * var(--tonearm-width));
+        }
+        .tonearm::before {
+            content: "";
+
+            position: absolute;
+            top: calc(-1 * var(--tonearm-width));
+            left: calc(-1 * var(--tonearm-width));
+            width: calc(3 * var(--tonearm-width));
+            height: calc(3 * var(--tonearm-width));
+            
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    #00000000 59%,
+                    #dbdbdb99 60%,
+                    #dcdcdc99 61%,
+                    #ababab99 80%,
+                    #ffffffff 100%
+                ),
+                conic-gradient(
+                    #ffffff66 0%,
+                    #a0a0a077 20%,
+                    #ffffff66 50%,
+                    #a0a0a077 70%,
+                    #ffffff66 100%
+                ),
+                linear-gradient(
+                    to right,
+                    #a4a4a4 5%,
+                    #ffffff 55%,
+                    #9e9e9e 95%
+                );
         }
         .tonearm::after {
             content: "";
@@ -140,8 +192,9 @@
                     #c2c2c2 100%
                 );
         }
+        /* 唱臂 [end] */
 
-        /* 唱针 */
+        /* 唱针 [begin] */
         .tonearm .needle {
             position: absolute;
             bottom: calc(-2 * var(--tonearm-width));
@@ -191,36 +244,89 @@
                     #ffffff 100%
                 );
         }
+        /* 唱针 [end] */
     </style>
 
     <style>
-        /* 动画 */
-        .record-player,
+        /* 唱片旋转 [begin] */
+        @keyframes record-rotation-animation {
+            from { transform: rotate(0deg);   }
+            to   { transform: rotate(360deg); }
+        }
+        .record-player .record {
+            --record-animation: 
+                record-rotation-animation
+                30s
+                linear
+                infinite
+            ;
+        }
+        .record-player:has(input[type="checkbox"]:checked) .record {
+            animation: var(--record-animation);
+        }
+        .record-player:has(input[type="checkbox"]:not(:checked)) .record {
+            animation: var(--record-animation) paused;
+        }
+        /* 唱片旋转 [end] */
+
+        /* 唱臂摆动 [begin] */
+        .record-player:has(input[type="checkbox"]:not(:checked)) .tonearm {
+            transform: rotate(0);
+        }
+        .record-player:has(input[type="checkbox"]:checked) .tonearm {
+            transform: rotate(var(--tonearm-rotation));
+        }
         .record-player .tonearm {
-            transition: all 0.6s;
+            transition: transform 0.5s;
         }
-        .record-player:has(.record:hover) {
-            transform:
-                translateY(calc(var(--record-diameter) * 0.15))
-                scale(1.2)
-                ;
-        }
-        .record-player:has(.record:hover) .tonearm {
-            opacity: 0;
-        }
+        /* 唱臂摆动 [end] */
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="record-player">
-            <div class="record">
-                <img src="http://dsoundsoft.oss-cn-beijing.aliyuncs.com/aisinger/img/head_yanxi.png">
-            </div>
+        <div class="record-player" id="ccc">
+            <label><input type="checkbox" hidden>
+                <div class="record">
+                    <img src="./img.bmp">
+                </div>
+            </label>
             <div class="tonearm">
                 <div class="needle"></div>
             </div>
+            <audio>
+                <source src="./music.mp3" type="audio/mpeg">
+            </audio>
         </div>
     </div>
+
+    <script>
+        const record_player = document.getElementById("ccc");
+        const checkbox = record_player.querySelector("input[type='checkbox']");
+        const audio = record_player.querySelector("audio");
+
+        const style = getComputedStyle(record_player)
+        const tonearm_rotation_min = parseFloat(style.getPropertyValue("--tonearm-rotation-min").slice(0, -3))
+        const tonearm_rotation_max = parseFloat(style.getPropertyValue("--tonearm-rotation-max").slice(0, -3))
+        const tonearm_rotation_range = tonearm_rotation_max - tonearm_rotation_min;
+    
+        audio.addEventListener("timeupdate", () => {
+            if (audio.currentTime >= audio.duration) {
+                audio.currentTime = 0;
+                audio.pause();
+                checkbox.checked = false;
+            }
+            const progress_deg = (audio.currentTime / audio.duration) * tonearm_rotation_range + tonearm_rotation_min;
+            record_player.style.setProperty("--tonearm-rotation", `${progress_deg}deg`);
+        });
+
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+    </script>
 </body>
 </html>
