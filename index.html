@@ -1,10 +1,226 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>szdxdxdx</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>唱片</title>
+
+    <style>
+        .container {
+            margin: 0 auto;
+            width: fit-content;
+            padding: 10px;
+        }
+    </style>
+
+    <style>
+        div.record-player {
+            --record-diameter: 380px;
+            --tonearm-width: 7px;
+
+            position: relative;
+        }
+
+        /* 唱片旋转动画 */
+        @keyframes record-rotation-animation {
+            from { transform: rotate(0deg);   }
+            to   { transform: rotate(360deg); }
+        }
+        /* 唱片 */
+        div.record-player .record {
+            width: var(--record-diameter);
+            height: var(--record-diameter);
+            border-radius: 50%;
+            border:1px solid #000000;
+            background:
+                conic-gradient(
+                    #f1f1f122 0%,
+                    #5d5d5d22 15%,
+                    #fbfbfb22 30%,
+                    #4d4d4d22 45%,
+                    #fafafa22 60%,
+                    #64646422 77.5%,
+                    #f1f1f122 100%
+                ),
+                radial-gradient(
+                    #55555522 49%,
+                    #33333322 49%,
+                    #33333322 61%,
+                    #55555522 61%
+                ),
+                repeating-radial-gradient(
+                    #000000 6px,
+                    #202020 7px,
+                    #000000 8px
+                );
+
+            /* 动画 */
+            animation-name: record-rotation-animation;
+            animation-duration: 30s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+        }
+        /* 唱片封面 */
+        div.record-player .record img {
+            width: var(--record-diameter);
+            height: var(--record-diameter);
+            box-sizing: border-box;
+            scale: 0.55;
+
+            object-fit: cover;
+
+            border-radius: 50%;
+            border:6px solid #ff6600;
+            background-color: #ffffff;
+        }
+
+        /* 唱臂 */
+        .tonearm {
+            --tonearm-add-width: calc(0.1 * var(--tonearm-width));
+
+            position: absolute;
+            left: var(--record-diameter);
+            top: 0;
+            width: var(--tonearm-width);
+            height: calc(0.75 * var(--record-diameter));
+            background:
+                linear-gradient(
+                    to bottom,
+                    #2b2b2b33 0%,
+                    #a3a3a322 65%,
+                    #1f1f1f33 95%
+                ),
+                linear-gradient(
+                    to right,
+                    #565656 0%,
+                    #6e6e6e 5%,
+                    #292929 25%,
+                    #272727 40%,
+                    #454545 60%,
+                    #141414 90%,
+                    #000000 100%
+                );
+            transform: rotate(13deg);
+            transform-origin: center var(--tonearm-width);
+        }
+        .tonearm::after {
+            content: "";
+
+            position: absolute;
+            bottom: calc(-1 * var(--tonearm-width));
+            left: calc(-1 * var(--tonearm-add-width));
+
+            width: calc(2 * var(--tonearm-add-width) + var(--tonearm-width));
+            height: calc(4 * var(--tonearm-width));
+            border-radius:
+                var(--tonearm-add-width)
+                var(--tonearm-add-width)
+                calc(0.6 * (var(--tonearm-width) + var(--tonearm-add-width)))
+                calc(0.6 * (var(--tonearm-width) + var(--tonearm-add-width)));
+            box-shadow:
+                inset 0 0 calc(0.2 * var(--tonearm-width)) 0 #bdbdbd,
+                0 0 calc(0.1 * var(--tonearm-width)) 0 #2a2a2a;
+            background:
+                radial-gradient(
+                    circle at center calc(100% - 0.6 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #ebebebaa calc(0.3 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #aaaaaadd calc(0.3 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #c9c9c9aa calc(0.35 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #00000000 calc(0.35 * (var(--tonearm-add-width) + var(--tonearm-width)))
+                ),
+                linear-gradient(
+                    to bottom,
+                    #ffffff66 0%,
+                    #00000000 5%
+                ),
+                linear-gradient(
+                    to right,
+                    #bbbbbb 0%,
+                    #e4e4e4 60%,
+                    #c2c2c2 100%
+                );
+        }
+
+        /* 唱针 */
+        .tonearm .needle {
+            position: absolute;
+            bottom: calc(-2 * var(--tonearm-width));
+
+            width: var(--tonearm-width);
+            height: calc(3.8 * var(--tonearm-width));
+
+            border-radius: calc(0.25 * (var(--tonearm-width) + var(--tonearm-add-width)));
+            box-shadow:
+                inset 0 0 calc(0.1 * var(--tonearm-width)) 0 #cecece;
+            background:
+                linear-gradient(
+                    to top,
+                    #6f6f6f66 0%,
+                    #b5b5b533 50%,
+                    #efefef33 100%
+                ),
+                linear-gradient(
+                    to right,
+                    #979797 0%,
+                    #e8e8e8 50%,
+                    #8e8e8e 100%
+                );
+
+            transform: rotate(205deg);
+            transform-origin: center calc(100% - var(--tonearm-width) - 0.6 * (var(--tonearm-add-width) + var(--tonearm-width)));
+        }
+        .tonearm .needle::after {
+            content: "";
+
+            position: absolute;
+            top: calc(-1 * (var(--tonearm-add-width) + var(--tonearm-width)));
+            
+            width: calc(var(--tonearm-add-width) + var(--tonearm-width));
+            height: calc(var(--tonearm-add-width) + var(--tonearm-width));
+            border-radius: 50%;
+            box-shadow:
+                inset 0 0 calc(0.3 * var(--tonearm-width)) 0 #b9b9b9;
+            background:
+                conic-gradient(
+                    #ffffff 0%,
+                    #cbcbcb 25%,
+                    #c7c7c7 35%,
+                    #e1e1e1 50%,
+                    #c4c4c4 75%,
+                    #cacaca 85%,
+                    #ffffff 100%
+                );
+        }
+    </style>
+
+    <style>
+        /* 动画 */
+        .record-player,
+        .record-player .tonearm {
+            transition: all 0.6s;
+        }
+        .record-player:has(.record:hover) {
+            transform:
+                translateY(calc(var(--record-diameter) * 0.15))
+                scale(1.2)
+                ;
+        }
+        .record-player:has(.record:hover) .tonearm {
+            opacity: 0;
+        }
+    </style>
 </head>
+
 <body>
-  hello?
+    <div class="container">
+        <div class="record-player">
+            <div class="record">
+                <img src="http://dsoundsoft.oss-cn-beijing.aliyuncs.com/aisinger/img/head_yanxi.png">
+            </div>
+            <div class="tonearm">
+                <div class="needle"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
