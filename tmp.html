@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>唱片机</title>
+
+    <style>
+        .container {
+            margin: 0 auto;
+            width: fit-content;
+            padding: 50px;
+        }
+    </style>
+
+    <style>
+        /* 唱片机底座 */
+        .record-player {
+            --record-radius: 190px;
+            --record-diameter: calc(2 * var(--record-radius));
+            --tonearm-width: 12px;
+            --padding-width: 25px;
+            --tonearm-rotation: 0deg;
+            --tonearm-rotation-min: 12deg;
+            --tonearm-rotation-max: 22deg;
+
+            padding: var(--padding-width);
+            position: relative;
+            width: calc(var(--record-diameter) + 2 * var(--tonearm-width));
+
+            border-radius: calc(var(--padding-width));
+            box-shadow: inset 0 0 var(--padding-width) 0 #c1c1c1;
+            background:
+                linear-gradient(
+                    to right bottom,
+                    #ebebeb33 0%,
+                    #ffffff99 40%,
+                    #e8e8e833 100%
+                ),
+                radial-gradient(
+                    circle at calc(var(--padding-width) + var(--record-radius)),
+                    #dbdbdb calc(var(--record-radius) - var(--tonearm-width)),
+                    #565656 calc(var(--record-radius)),
+                    #dbdbdb calc(var(--record-radius) + var(--tonearm-width)),
+                    #ffffff 100%
+                );
+        }
+
+        /* 唱片 [begin] */
+        .record-player .record {
+            width: var(--record-diameter);
+            height: var(--record-diameter);
+            border-radius: 50%;
+            border:1px solid #000000;
+            background:
+                conic-gradient(
+                    #e1e1e12f 0%,
+                    #0000002f 15%,
+                    #e8e8e82f 30%,
+                    #0000002f 45%,
+                    #e7e7e72f 60%,
+                    #0000002f 77.5%,
+                    #e1e1e12f 100%
+                ),
+                radial-gradient(
+                    #55555522 49%,
+                    #33333322 49%,
+                    #33333322 61%,
+                    #55555522 61%
+                ),
+                repeating-radial-gradient(
+                    #000000 6px,
+                    #202020 7px,
+                    #000000 8px
+                );
+        }
+        .record-player .record:hover {
+            cursor: pointer;
+        }
+        /* 唱片 [end] */
+
+        /* 唱片封面 [begin] */
+        .record-player .record img {
+            width: var(--record-diameter);
+            height: var(--record-diameter);
+            box-sizing: border-box;
+            scale: 0.55;
+
+            object-fit: cover;
+            user-select: none;
+
+            border-radius: 50%;
+            border:6px solid #ff6600;
+            background-color: #ffffff;
+        }
+        /* 唱片封面 [end] */
+
+        /* 唱臂 [begin] */
+        .tonearm {
+            --tonearm-add-width: calc(0.1 * var(--tonearm-width));
+
+            position: absolute;
+            left: calc(var(--record-diameter) + var(--tonearm-width) + var(--padding-width));
+            top: var(--padding-width);
+            width: var(--tonearm-width);
+            height: calc(0.75 * var(--record-diameter));
+            background:
+                linear-gradient(
+                    to bottom,
+                    #2b2b2b33 0%,
+                    #a3a3a322 65%,
+                    #1f1f1f33 95%
+                ),
+                linear-gradient(
+                    to right,
+                    #565656 0%,
+                    #6e6e6e 5%,
+                    #292929 25%,
+                    #272727 40%,
+                    #454545 60%,
+                    #141414 90%,
+                    #000000 100%
+                );
+            transform-origin: center calc(0.5 * var(--tonearm-width));
+        }
+        .tonearm::before {
+            content: "";
+
+            position: absolute;
+            top: calc(-1 * var(--tonearm-width));
+            left: calc(-1 * var(--tonearm-width));
+            width: calc(3 * var(--tonearm-width));
+            height: calc(3 * var(--tonearm-width));
+            
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    #00000000 59%,
+                    #dbdbdb99 60%,
+                    #dcdcdc99 61%,
+                    #ababab99 80%,
+                    #ffffffff 100%
+                ),
+                conic-gradient(
+                    #ffffff66 0%,
+                    #a0a0a077 20%,
+                    #ffffff66 50%,
+                    #a0a0a077 70%,
+                    #ffffff66 100%
+                ),
+                linear-gradient(
+                    to right,
+                    #a4a4a4 5%,
+                    #ffffff 55%,
+                    #9e9e9e 95%
+                );
+        }
+        .tonearm::after {
+            content: "";
+
+            position: absolute;
+            bottom: calc(-1 * var(--tonearm-width));
+            left: calc(-1 * var(--tonearm-add-width));
+
+            width: calc(2 * var(--tonearm-add-width) + var(--tonearm-width));
+            height: calc(4 * var(--tonearm-width));
+            border-radius:
+                var(--tonearm-add-width)
+                var(--tonearm-add-width)
+                calc(0.6 * (var(--tonearm-width) + var(--tonearm-add-width)))
+                calc(0.6 * (var(--tonearm-width) + var(--tonearm-add-width)));
+            box-shadow:
+                inset 0 0 calc(0.2 * var(--tonearm-width)) 0 #bdbdbd,
+                0 0 calc(0.1 * var(--tonearm-width)) 0 #2a2a2a;
+            background:
+                radial-gradient(
+                    circle at center calc(100% - 0.6 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #ebebebaa calc(0.3 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #aaaaaadd calc(0.3 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #c9c9c9aa calc(0.35 * (var(--tonearm-add-width) + var(--tonearm-width))),
+                    #00000000 calc(0.35 * (var(--tonearm-add-width) + var(--tonearm-width)))
+                ),
+                linear-gradient(
+                    to bottom,
+                    #ffffff66 0%,
+                    #00000000 5%
+                ),
+                linear-gradient(
+                    to right,
+                    #bbbbbb 0%,
+                    #e4e4e4 60%,
+                    #c2c2c2 100%
+                );
+        }
+        /* 唱臂 [end] */
+
+        /* 唱针 [begin] */
+        .tonearm .needle {
+            position: absolute;
+            bottom: calc(-2 * var(--tonearm-width));
+
+            width: var(--tonearm-width);
+            height: calc(3.8 * var(--tonearm-width));
+
+            border-radius: calc(0.25 * (var(--tonearm-width) + var(--tonearm-add-width)));
+            box-shadow:
+                inset 0 0 calc(0.1 * var(--tonearm-width)) 0 #cecece;
+            background:
+                linear-gradient(
+                    to top,
+                    #6f6f6f66 0%,
+                    #b5b5b533 50%,
+                    #efefef33 100%
+                ),
+                linear-gradient(
+                    to right,
+                    #979797 0%,
+                    #e8e8e8 50%,
+                    #8e8e8e 100%
+                );
+
+            transform: rotate(205deg);
+            transform-origin: center calc(100% - var(--tonearm-width) - 0.6 * (var(--tonearm-add-width) + var(--tonearm-width)));
+        }
+        .tonearm .needle::after {
+            content: "";
+
+            position: absolute;
+            top: calc(-1 * (var(--tonearm-add-width) + var(--tonearm-width)));
+            
+            width: calc(var(--tonearm-add-width) + var(--tonearm-width));
+            height: calc(var(--tonearm-add-width) + var(--tonearm-width));
+            border-radius: 50%;
+            box-shadow:
+                inset 0 0 calc(0.3 * var(--tonearm-width)) 0 #b9b9b9;
+            background:
+                conic-gradient(
+                    #ffffff 0%,
+                    #cbcbcb 25%,
+                    #c7c7c7 35%,
+                    #e1e1e1 50%,
+                    #c4c4c4 75%,
+                    #cacaca 85%,
+                    #ffffff 100%
+                );
+        }
+        /* 唱针 [end] */
+    </style>
+
+    <style>
+        /* 唱片旋转 [begin] */
+        @keyframes record-rotation-animation {
+            from { transform: rotate(0deg);   }
+            to   { transform: rotate(360deg); }
+        }
+        .record-player .record {
+            --record-animation: 
+                record-rotation-animation
+                30s
+                linear
+                infinite
+            ;
+        }
+        .record-player:has(input[type="checkbox"]:checked) .record {
+            animation: var(--record-animation);
+        }
+        .record-player:has(input[type="checkbox"]:not(:checked)) .record {
+            animation: var(--record-animation) paused;
+        }
+        /* 唱片旋转 [end] */
+
+        /* 唱臂摆动 [begin] */
+        .record-player:has(input[type="checkbox"]:not(:checked)) .tonearm {
+            transform: rotate(0);
+        }
+        .record-player:has(input[type="checkbox"]:checked) .tonearm {
+            transform: rotate(var(--tonearm-rotation));
+        }
+        .record-player .tonearm {
+            transition: transform 0.5s;
+        }
+        /* 唱臂摆动 [end] */
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="record-player" id="ccc">
+            <label><input type="checkbox" hidden>
+                <div class="record">
+                    <img src="./img.bmp">
+                </div>
+            </label>
+            <div class="tonearm">
+                <div class="needle"></div>
+            </div>
+            <audio>
+                <source src="./music.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+
+    <script>
+        const record_player = document.getElementById("ccc");
+        const checkbox = record_player.querySelector("input[type='checkbox']");
+        const audio = record_player.querySelector("audio");
+
+        const style = getComputedStyle(record_player)
+        const tonearm_rotation_min = parseFloat(style.getPropertyValue("--tonearm-rotation-min").slice(0, -3))
+        const tonearm_rotation_max = parseFloat(style.getPropertyValue("--tonearm-rotation-max").slice(0, -3))
+        const tonearm_rotation_range = tonearm_rotation_max - tonearm_rotation_min;
+    
+        audio.addEventListener("timeupdate", () => {
+            if (audio.currentTime >= audio.duration) {
+                audio.currentTime = 0;
+                audio.pause();
+                checkbox.checked = false;
+            }
+            const progress_deg = (audio.currentTime / audio.duration) * tonearm_rotation_range + tonearm_rotation_min;
+            record_player.style.setProperty("--tonearm-rotation", `${progress_deg}deg`);
+        });
+
+        checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+    </script>
+</body>
+</html>
