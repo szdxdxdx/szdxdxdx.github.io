@@ -182,24 +182,32 @@
 
   <script>
     const record_player = document.getElementById("ccc");
-    const checkbox = record_player.querySelector("input[type='checkbox']");
-    const audio = record_player.querySelector("audio");
+      const checkbox = record_player.querySelector("input[type='checkbox']");
+      const audio = record_player.querySelector("audio");
 
-    audio.addEventListener("timeupdate", () => {
-      if (audio.currentTime >= audio.duration) {
-        audio.currentTime = 0;
-        audio.pause();
-        checkbox.checked = false;
-      }
-    });
+      audio.load();
 
-    checkbox.addEventListener("change", () => {
-      if (checkbox.checked) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
-    });
+      audio.addEventListener("timeupdate", () => {
+        if (audio.currentTime >= audio.duration) {
+          audio.currentTime = 0;
+          audio.pause();
+          checkbox.checked = false;
+        }
+      });
+
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          if (audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+            audio.play();
+          }
+          else {
+            alert("音频加载中...");
+            checkbox.checked = false;
+          }
+        } else {
+          audio.pause();
+        }
+      });
   </script>
 </body>
 
