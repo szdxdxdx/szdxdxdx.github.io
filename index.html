@@ -37,6 +37,7 @@
 
       position: relative;
       width: calc(var(--record-diameter) + 2 * var(--tonearm-width));
+      height: calc(var(--record-diameter) + 2 * var(--tonearm-width));
 
       border-radius: calc(0.5 * var(--padding-width));
     }
@@ -55,7 +56,7 @@
     .record-player .record {
       width: var(--record-diameter);
       height: var(--record-diameter);
-  
+
       box-sizing: border-box;
       border: var(--record-grooves-width) solid #000000;
       border-radius: 50%;
@@ -97,6 +98,7 @@
       top: 0;
       bottom: 0;
       margin: auto;
+
       width: calc(2 * var(--record-img-radius));
       height: calc(2 * var(--record-img-radius));
       box-sizing: border-box;
@@ -108,7 +110,7 @@
       border: calc(2.5 * var(--record-grooves-width)) solid rgba(var(--record-main-color), 0.5);
       background-color: rgb(var(--record-main-color));
     }
-    
+
     /* 亮光 */
     .record-player .light {
       position: absolute;
@@ -143,14 +145,12 @@
       from {
         transform: rotate(0deg);
       }
-
       to {
         transform: rotate(360deg);
       }
     }
     .record-player .record {
-      --record-animation:
-        record-rotation-animation 4s linear infinite;
+      --record-animation: record-rotation-animation 4s linear infinite;
     }
     .record-player:has(input[type="checkbox"]:checked) .record {
       animation: var(--record-animation);
