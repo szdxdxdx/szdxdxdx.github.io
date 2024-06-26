@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>唱片</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      margin: auto;
+      width: fit-content;
+    }
+  </style>
+
+  <style>
+    /* 可控变量 */
+    .record-player {
+      --record-radius: 45vmin;
+      --record-main-color: 255, 102, 0;
+    }
+
+    /* 唱片机容器 */
+    .record-player {
+      --record-diameter: calc(2 * var(--record-radius));
+      --record-grooves-width: max(0.1px, calc(var(--record-radius) / 100));
+      --record-shadow: calc(4 * var(--record-grooves-width));
+      --record-img-radius: calc(0.5 * var(--record-radius));
+
+      position: relative;
+      width: calc(var(--record-diameter) + 2 * var(--tonearm-width));
+      height: calc(var(--record-diameter) + 2 * var(--tonearm-width));
+
+      border-radius: calc(0.5 * var(--padding-width));
+    }
+
+    /* 唱片 [begin] */
+    .record-player .record-container {
+      padding: var(--record-shadow);
+      display: block;
+      overflow: hidden;
+      background:
+        radial-gradient(
+          #00000055 var(--record-radius),
+          transparent calc(var(--record-radius) + var(--record-shadow))
+        );
+    }
+    .record-player .record {
+      width: var(--record-diameter);
+      height: var(--record-diameter);
+
+      box-sizing: border-box;
+      border: var(--record-grooves-width) solid #000000;
+      border-radius: 50%;
+      background:
+        conic-gradient(
+          #00000022 15%,
+          #2a2a2a22 25%,
+          #00000022 35%,
+          #00000022 60%,
+          #2a2a2a22 75%,
+          #00000022 85%
+        ),
+        radial-gradient(
+          #0a0a0aff 41%,
+          #44444422 41%,
+          #44444422 48%,
+          #20202022 48%,
+          #20202022 64%,
+          #4a4a4a22 64%
+        ),
+        repeating-radial-gradient(
+          #000000 0,
+          #000000 calc(0.5 * var(--record-grooves-width)),
+          #1a1a1a calc(0.5 * var(--record-grooves-width)),
+          #1a1a1a var(--record-grooves-width)
+        ),
+        #000000;
+    }
+    .record-player .record:hover {
+      cursor: pointer;
+    }
+    /* 唱片 [end] */
+
+    /* 唱片封面 */
+    .record-player .record img {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+
+      width: calc(2 * var(--record-img-radius));
+      height: calc(2 * var(--record-img-radius));
+      box-sizing: border-box;
+
+      object-fit: cover;
+      user-select: none;
+
+      border-radius: 50%;
+      border: calc(2.5 * var(--record-grooves-width)) solid rgba(var(--record-main-color), 0.5);
+      background-color: rgb(var(--record-main-color));
+    }
+
+    /* 亮光 */
+    .record-player .light {
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      width: calc(var(--record-diameter) + 2 * var(--record-shadow));
+      height: calc(var(--record-diameter) + 2 * var(--record-shadow));
+
+      pointer-events: none;
+
+      border-radius: 50%;
+      mask-image: radial-gradient(
+        transparent var(--record-img-radius),
+        #000000 0
+      );
+      background:
+        conic-gradient(
+          #ffffff01 25%,
+          #ffffff22 35%,
+          transparent 45%,
+          transparent 70%,
+          #ffffff22 85%,
+          #ffffff01 95%
+        );
+    }
+  </style>
+
+  <style>
+    /* 唱片旋转 [begin] */
+    @keyframes record-rotation-animation {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .record-player .record {
+      --record-animation: record-rotation-animation 4s linear infinite;
+    }
+    .record-player:has(input[type="checkbox"]:checked) .record {
+      animation: var(--record-animation);
+    }
+    .record-player:has(input[type="checkbox"]:not(:checked)) .record {
+      animation: var(--record-animation) paused;
+    }
+    /* 唱片旋转 [end] */
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="record-player" id="ccc">
+      <label class="record-container">
+        <input type="checkbox" hidden>
+        <div class="record">
+          <img src="./img.bmp" draggable="false">
+        </div>
+        <div class="light"></div>
+      </label>
+      <audio>
+        <source src="./music.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+
+  </div>
+
+  <script>
+    const record_player = document.getElementById("ccc");
+    const checkbox = record_player.querySelector("input[type='checkbox']");
+    const audio = record_player.querySelector("audio");
+
+    audio.load();
+
+    audio.addEventListener("timeupdate", () => {
+      if (audio.currentTime >= audio.duration) {
+        audio.currentTime = 0;
+        audio.pause();
+        checkbox.checked = false;
+      }
+    });
+
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    });
+  </script>
+</body>
+
+</html>
