@@ -58,13 +58,13 @@
     </div>
 
     <script>
-        const supportedExtensions = 
-            `.c .h .cpp 
-            .html .css .js .ts
-            .py
-            .java
-            .md .txt .json .yml .xml
-            `.split(' ')
+        const supportedExtensions = [
+            '.c', '.h', '.cpp', 
+            '.html', '.css', '.js', '.ts', '.vue',
+            '.py',
+            '.java',
+            '.md', '.txt', '.json', '.yml', '.xml'
+        ]
 
         const folderInput = document.getElementById('folder-input');
         const resultTable = document.getElementById('result-table').getElementsByTagName('tbody')[0];
