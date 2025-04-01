@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码行数统计工具</title>
+    <style>
+        #input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-y: auto;
+            margin-bottom: 60px;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>代码行数统计工具</h1>
+
+    <div>
+        <table id="result-table">
+            <thead>
+                <tr>
+                    <th>文件名</th>
+                    <th>行数</th>
+                    <th>非空行数</th>
+                    <th>字符数</th>
+                    <th>非空白字符数</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div id="input-container">
+            <label for="folder-input">选择文件夹：</label>
+            <input type="file" id="folder-input" webkitdirectory directory multiple onchange="handleFolderSelection(event)">
+        </div>
+    </div>
+
+    <script>
+        const supportedExtensions = 
+            `.c .h .cpp 
+            .html .css .js .ts
+            .py
+            .java
+            .md .txt .json .yml .xml
+            `.split(' ')
+
+        const folderInput = document.getElementById('folder-input');
+        const resultTable = document.getElementById('result-table').getElementsByTagName('tbody')[0];
+
+        function handleFolderSelection(event) {
+            const files = event.target.files;
+            resultTable.innerHTML = '';
+
+            const promises = Array.from(files).map(file => {
+                return new Promise((resolve) => {
+                    if (supportedExtensions.some(ext => file.name.endsWith(ext))) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const content = e.target.result;
+                            const lines = content.split('\n');
+                            const totalLines = lines.length;
+                            const nonEmptyLines = lines.filter(line => line.trim() !== '').length;
+                            
+                            const totalChars = content.length;
+                            const nonWhitespaceChars = content.replace(/\s/g, '').length;
+
+                            const row = resultTable.insertRow();
+                            row.insertCell().textContent = file.webkitRelativePath || file.name;
+                            row.insertCell().textContent = totalLines;
+                            row.insertCell().textContent = nonEmptyLines;
+                            row.insertCell().textContent = totalChars;
+                            row.insertCell().textContent = nonWhitespaceChars;
+                            resolve();
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        resolve();
+                    }
+                })
+            });
+
+            Promise.all(promises).then(() => {
+                const totalRow = resultTable.insertRow(0);
+                totalRow.insertCell().textContent = '总计';
+                
+                let totalLinesSum = 0;
+                let nonEmptyLinesSum = 0;
+                let totalCharsSum = 0;
+                let nonWhitespaceCharsSum = 0;
+                
+                Array.from(resultTable.rows).slice(1).forEach(row => {
+                    totalLinesSum += parseInt(row.cells[1].textContent);
+                    nonEmptyLinesSum += parseInt(row.cells[2].textContent);
+                    totalCharsSum += parseInt(row.cells[3].textContent);
+                    nonWhitespaceCharsSum += parseInt(row.cells[4].textContent);
+                });
+                
+                totalRow.insertCell().textContent = totalLinesSum;
+                totalRow.insertCell().textContent = nonEmptyLinesSum;
+                totalRow.insertCell().textContent = totalCharsSum;
+                totalRow.insertCell().textContent = nonWhitespaceCharsSum;
+            })
+        }
+    </script>
+</body>
+</html>
