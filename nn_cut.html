@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nn_cut</title>
+  <script src="./vue3.js"></script>
+
+  <style>
+    #app .tool_bar {
+      padding: 5px;
+      border-bottom: 1px solid black;
+    }
+
+    #app .tool_bar input {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #app .note {
+      position: relative;
+    }
+    #app .note:hover::after {
+      content: "✂";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      border-bottom: 1.5px dashed black;
+      cursor: pointer;
+    }
+    #app .note.cut::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+      border-bottom: 1.5px dashed #cf0808;
+    }
+
+  </style>
+</head>
+
+<body style="display: flex; justify-content: center; align-items: center; margin: 0; padding: 0; height: 100vh;">
+  <div id="app" style="display: flex; flex-direction: column; margin-bottom: 20px; width: clamp(800px, 80%, 1000px); height: 100%; font-size: 16px;">
+  
+    <h1 style="margin: 0 0 2px 0; padding: 10px 0; border-bottom: 1px solid black; font-size: 30px; text-align: center;">
+      <span>nn cut</span>
+    </h1>
+
+    <div style="display: flex; width: 100%; flex: 1; border: 1px solid black; box-sizing: border-box; overflow: auto;">
+      <div style="flex: 3; display: flex; flex-direction: column; height: 100%; border-right: 1px solid black; overflow: auto;">
+        <div class="tool_bar">
+          <input type="file" accept=".nn" @change="read_nn_file"></input>
+        </div>
+  
+        <div v-if="nn_file" style="flex: 1; display: flex; flex-direction: column; padding-bottom: 10px; overflow-y: scroll; overflow-x: hidden;">
+          <div style="margin: 0; padding: 5px; font-size: 0.9em;">
+            <span style="padding: 5px 10px;">曲速：{{ nn_file.bpm }}</span>
+            <span style="padding: 5px 10px;">节拍：{{ nn_file.beat[0] }}/{{ nn_file.beat[1] }}</span>
+            <span style="padding: 5px 10px;">小节：{{ nn_file.bar_number }}</span>
+          </div>
+          <div style="flex: 1; position: relative;" @click="click_note">
+            <div style="display: grid; grid-template-columns: 2fr 3fr 3fr; position: sticky; top: 0; z-index: 1; padding: 1px 0 3px 0; background-color: #dcf5dc;">
+              <div style="text-align: center;">序号</div>
+              <div style="text-align: center;">歌词</div>
+              <div style="text-align: center;">音高</div>
+            </div>
+            <div class="note" :class="{'cut': note.cut}" style="display: grid; grid-template-columns: 2fr 3fr 3fr;"
+              v-for="(note, index) in nn_file.notes" :data-index="index">
+              <div style="text-align: right; position: relative; right: 20%; color: #999;">{{ index + 1 }}</div>
+              <div style="text-align: center;">{{ note.lyric }}</div>
+              <div style="text-align: right; position: relative; right: 40%;">{{ number_to_note(note.pitch) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex: 7; display: flex; flex-direction: column; height: 100%; overflow: auto;">
+        <div v-if="nn_file" class="tool_bar" style="display: flex; justify-content: end; gap: 15px">
+          <button @click="auto_naming">自动命名</button>
+          <button @click="save_nn_all">导出全部</button>
+        </div>
+        <div v-if="nn_file" style="flex: 1; position: relative; overflow: auto;">
+          <div style="display: grid; grid-template-columns: 5fr 3fr 1fr; position: sticky; top: 0; z-index: 1; padding: 1px 0 3px 0; background-color: #dcf5dc;">
+            <div style="text-align: center;">歌词预览</div>
+            <div style="text-align: center;">导出为 .nn</div>
+            <div></div>
+          </div>
+          <div v-for="(range, index) in cut" style="display: grid; grid-template-columns: 5fr 3fr 1fr; padding: 5px;">
+            <div style="display: flex;">
+              <div style="width: 75px; color: #999;">{{ range.from + 1 }}~{{ range.to }}</div>
+              <div style="flex: 1;">{{ lyric_preview(range) }}</div>
+            </div>
+            <div><input type="text" v-model="range.file_name" placeholder="请输入文件名 .nn" style="width: 100%;"></div>
+            <div><button style="margin-left: 25%;" @click="save_nn(range)">导出</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+    const app = createApp({
+      data() {
+        return {
+          nn_file: null,
+          file_name: '',
+          cut: [],
+        };
+      },
+      methods: {
+        read_nn_file(event) {
+          const file = event.target.files[0];
+          if (file) {
+            if ( ! file.name.endsWith('.nn')) {
+              alert('请选择 .nn 文件');
+              return;
+            }
+
+            this.file_name = file.name.slice(0, -3);
+
+            const reader = new FileReader();
+            reader.onload = () => {
+              this.parse_nn_file(reader.result);
+            };
+            reader.readAsText(file);
+          }
+        },
+
+        parse_nn_file(content) {
+          this.nn_file = {}
+
+          const lines = content.split('\n');
+          this.nn_file.lines = lines;
+
+          const header = lines[0].split(' ');
+          this.nn_file.bpm = header[0];
+          this.nn_file.beat = [header[1], header[2]];
+          this.nn_file.bar_number = header[3];
+
+          this.nn_file.notes = lines.slice(2).map(line => {
+            const parts = line.split(' ');
+            if (parts.length < 6){
+              return null;
+            } else {
+              return {
+                lyric:  parts[1],
+                pitch:  parts[5],
+                cut:    false,
+              }
+            }
+          }).filter(note => note);
+
+          this.cut = [{
+            from: 0,
+            to: this.nn_file.notes.length,
+            file_name: ''
+          }]
+        },
+
+        number_to_note(num) {
+          return `${['B', '#A', 'A', '#G', 'G', '#F', 'F', 'E', '#D', 'D', '#C', 'C'][num % 12]}${5 - Math.floor(num / 12)}`
+        },
+
+        click_note(event) {
+          let target = event.target;
+          while (target && !target.dataset.index && target !== event.currentTarget) {
+            target = target.parentNode;
+          }
+          if ( ! (target && target.dataset.index !== undefined)) {
+            return;
+          }
+          this.add_or_del_cut_pos(Number(target.dataset.index));
+        },
+
+        add_or_del_cut_pos(cut_pos) {
+          let i = 0;
+          while (i < this.cut.length) {
+            const range = this.cut[i];
+            if (cut_pos + 1 == range.to) {
+              // del
+              const merge_range = {
+                from: range.from,
+                to: this.cut[i + 1].to,
+                file_name: range.file_name,
+              };
+              this.cut.splice(i, 2, merge_range);
+              break;
+            }
+            else if (range.from <= cut_pos && cut_pos < range.to) {
+              // add
+              const left = {
+                from: range.from,
+                to: cut_pos + 1,
+                file_name: range.file_name,
+              };
+              const right = {
+                from: cut_pos + 1,
+                to: range.to,
+                file_name: '',
+              };
+              this.cut.splice(i, 1, left, right);
+              break;
+            }
+            else {
+              i++;
+              continue;
+            }
+          }
+
+          const note = this.nn_file.notes[cut_pos];
+          note.cut = !note.cut;
+        },
+
+        lyric_preview(range) {
+          let lyric = '';
+          if (range.to - range.from < 12) {
+            for (let i = range.from; i < range.to; i++) {
+              lyric += this.nn_file.notes[i].lyric
+            }
+          }
+          else {
+            for (let i = range.from; i < range.from + 5; i++) {
+              lyric += this.nn_file.notes[i].lyric
+            }
+            lyric += ' ... ';
+            for (let i = range.to - 5; i < range.to; i++) {
+              lyric += this.nn_file.notes[i].lyric
+            }
+          }
+          return `${lyric}`;
+        },
+
+        auto_naming() {
+          for (let i = 0; i < this.cut.length; i++) {
+            this.cut[i].file_name = `${this.file_name}_${i + 1}.nn`;
+          }
+        },
+
+        save_nn(range) {
+          let file_name = range.file_name;
+          if ( ! file_name) {
+            file_name = `${this.file_name} ${range.from + 1}-${range.to}.nn`;
+          } else if ( ! file_name.endsWith('.nn')) {
+            file_name = `${range.file_name}.nn`;
+          }
+
+          let content = '';
+          content += `${this.nn_file.lines[0]}\n`;
+          content += `${range.to - range.from}\n`;
+          for (let i = range.from; i < range.to; i++) {
+            content += `${this.nn_file.lines[2 + i]}\n`;
+          }
+
+          this.save_text_file(file_name, content);
+        },
+
+        save_nn_all() {
+          for (let i = 0; i < this.cut.length; i++) {
+            this.save_nn(this.cut[i]);
+          }
+        },
+
+        save_text_file(filename, content) {
+          const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      }
+    });
+    app.mount('#app');
+  </script>
+
+</body>
+
+</html>
